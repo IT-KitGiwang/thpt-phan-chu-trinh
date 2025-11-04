@@ -12,7 +12,7 @@ from io import BytesIO
 from werkzeug.utils import secure_filename
 import pandas as pd
 from dotenv import load_dotenv
-
+import shutil
 # ================== LOAD ENV ==================
 load_dotenv()
 
@@ -89,20 +89,32 @@ def embed_with_retry(texts, model, retries=5):
     return np.array(embeddings)
 
 def init_rag():
-    """Khởi tạo hoặc tải lại RAG"""
+    """Khởi tạo hoặc tải lại RAG + XÓA TOÀN BỘ session cũ"""
     global RAG_DATA
-    print("🔄 Đang tải lại RAG...")
+
+    # XÓA SESSION CŨ
+    session_dir = 'flask_session'
+    if os.path.exists(session_dir):
+        try:
+            shutil.rmtree(session_dir)
+            print(f"Đã xóa toàn bộ session cũ tại: {session_dir}")
+        except Exception as e:
+            print(f"Lỗi khi xóa thư mục session: {e}")
+    os.makedirs(session_dir, exist_ok=True)
+
+    # Tiếp tục như cũ...
+    print("Đang tải lại RAG...")
     RAG_DATA = {"chunks": [], "embeddings": np.array([]), "is_ready": False}
     chunks = create_chunks()
     if not chunks:
-        print("⚠️ Không có PDF hợp lệ trong thư mục static/.")
+        print("Không có PDF hợp lệ trong thư mục static/.")
         return
     try:
         embeddings = embed_with_retry(chunks, EMBEDDING_MODEL)
         RAG_DATA.update({"chunks": chunks, "embeddings": embeddings, "is_ready": True})
-        print(f"✅ RAG tải xong: {len(chunks)} đoạn từ {len(os.listdir('./static'))} file PDF.")
+        print(f"RAG tải xong: {len(chunks)} đoạn từ {len(os.listdir('./static'))} file PDF.")
     except Exception as e:
-        print(f"❌ Lỗi RAG: {e}")
+        print(f"Lỗi RAG: {e}")
         RAG_DATA["is_ready"] = False
 
 # Tải RAG khi khởi động server
