@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đăng nhập Quản trị viên </title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      /* Ảnh nền */
+      background: url('https://sf-static.upanhlaylink.com/img/image_2025110501f70d01c6420d8bf5e3f43ba1c721c0.jpg') no-repeat center center fixed;
+      background-size: cover;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* Lớp phủ mờ mịn */
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(6px);
+      background: rgba(0, 0, 0, 0.2);
+      z-index: 0;
+    }
+
+    .card {
+      z-index: 1;
+      border: none;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      border-bottom: none;
+      padding: 1.5rem;
+    }
+
+    .card-header h4 {
+      margin: 0;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary {
+      background: #1e3c72;
+      border: none;
+      font-weight: 500;
+      padding: 0.75rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: #2a5298;
+      transform: translateY(-2px);
+    }
+
+    .form-control {
+      border-radius: 8px;
+      padding: 0.75rem;
+      border: 1px solid #ced4da;
+    }
+
+    .form-control:focus {
+      border-color: #1e3c72;
+      box-shadow: 0 0 0 0.2rem rgba(30, 60, 114, 0.25);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-5 col-lg-4">
+        <div class="card shadow">
+          <div class="card-header bg-primary text-white text-center">
+            <h4>Đăng nhập Quản trị viên</h4>
+            <small class="d-block mt-1">THPT Phan Chu Trinh</small>
+          </div>
+          <div class="card-body p-4">
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <!-- Login Form -->
+            <form method="POST" action="{{ url_for('admin_login') }}">
+              <div class="mb-3">
+                <label class="form-label fw-medium">Tài khoản</label>
+                <input type="text" name="username" class="form-control" placeholder="Nhập tài khoản" required />
+              </div>
+              <div class="mb-4">
+                <label class="form-label fw-medium">Mật khẩu</label>
+                <input type="password" name="password" class="form-control" placeholder="Nhập mật khẩu" required />
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+            </form>
+
+            <div class="text-center mt-4 text-muted small">
+              © 2025 THPT Phan Chu Trinh - AI Thư viện Văn hóa Đọc
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

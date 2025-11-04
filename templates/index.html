@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thư Viện Văn Hóa Đọc - THPT Phan Chu Trinh</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          screens: { 'xs': '480px' },
+          colors: {
+            'sky-light': '#a5f3fc',
+            'sky-medium': '#0ea5e9',
+            'sky-hover': '#0284c7',
+            'accent-pink': '#ec4899',
+            'accent-yellow': '#fbbf24',
+            'bg-soft': '#f0fdfa',
+            'card-bg': '#ffffff',
+          },
+          boxShadow: {
+            'soft': '0 10px 30px rgba(14, 165, 233, 0.15)',
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #ecfeff 0%, #fef3c7 100%);
+      min-height: 100vh;
+    }
+
+    /* Chat container - 85% width on large screens */
+    .chat-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    @media (min-width: 1024px) {
+      .chat-container { width: 85%; }
+    }
+
+    /* Chat box */
+    #chat-messages {
+      min-height: 58vh;
+      max-height: 68vh;
+      overflow-y: auto;
+      padding: 1.5rem 1rem;
+      margin: 1.5rem 0;
+    }
+
+    /* AI Bubble */
+    .chat-bubble.ai-message {
+      background: linear-gradient(145deg, #ffffff, #ccfbf1);
+      border: 2px solid #99f6e4;
+      box-shadow: 0 6px 16px rgba(14, 165, 233, 0.15);
+      border-radius: 1.5rem;
+      position: relative;
+    }
+    .chat-bubble.ai-message::before {
+      content: '';
+      position: absolute;
+      left: -10px;
+      top: 20px;
+      width: 0; height: 0;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-right: 10px solid #99f6e4;
+    }
+
+    /* User Bubble */
+    .chat-bubble.user-message {
+      background: linear-gradient(145deg, #0ea5e9, #0284c7);
+      color: white;
+      box-shadow: 0 6px 16px rgba(14, 165, 233, 0.3);
+      border-radius: 1.5rem;
+      position: relative;
+    }
+    .chat-bubble.user-message::after {
+      content: '';
+      position: absolute;
+      right: -10px;
+      top: 20px;
+      width: 0; height: 0;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-left: 10px solid #0ea5e9;
+    }
+
+    /* Typing Dots */
+    .typing-dot {
+      display: inline-block;
+      width: 11px; height: 11px;
+      background: radial-gradient(circle, #0ea5e9, #ec4899);
+      border-radius: 50%;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.7); opacity: 0.7; }
+    }
+
+    /* Scrollbar */
+    #chat-messages::-webkit-scrollbar { width: 10px; }
+    #chat-messages::-webkit-scrollbar-thumb {
+      background: linear-gradient(#0ea5e9, #ec4899);
+      border-radius: 5px;
+    }
+
+    /* Baby Sticker - ONLY ONE */
+    .baby-sticker {
+      width: 60px;
+      height: 60px;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1));
+      transition: transform 0.3s ease;
+    }
+    .baby-sticker:hover {
+      transform: scale(1.1) rotate(5deg);
+    }
+  </style>
+</head>
+
+<body class="font-sans antialiased">
+
+  <!-- NAVIGATION -->
+  <nav class="bg-gradient-to-r from-sky-medium to-accent-pink text-white shadow-xl sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center space-x-3">
+          <img src="https://png.pngtree.com/png-clipart/20230914/original/pngtree-princess-girl-reading-a-book-sticker-illustration-vector-design-png-image_11088416.png" 
+               alt="Logo" class="w-10 h-10">
+          <a href="/" class="text-xl font-bold tracking-wider">Thư Viện Văn Hóa Đọc</a>
+        </div>
+
+        <div class="hidden lg:flex items-center space-x-3">
+          <a href="/#home" class="px-5 py-2 text-sm font-medium hover:bg-white hover:bg-opacity-25 rounded-full transition">Trang Chủ</a>
+          <a href="/#about" class="px-5 py-2 text-sm font-medium hover:bg-white hover:bg-opacity-25 rounded-full transition">Giới Thiệu</a>
+          <a href="/#books" class="px-5 py-2 text-sm font-medium hover:bg-white hover:bg-opacity-25 rounded-full transition">Kho Sách</a>
+          <a href="/challenges" class="px-5 py-2 text-sm font-medium hover:bg-white hover:bg-opacity-25 rounded-full transition flex items-center gap-1">
+            <i class="fas fa-brain"></i> Thử Thách
+          </a>
+          <a href="/leaderboard" class="px-5 py-2 text-sm font-medium hover:bg-white hover:bg-opacity-25 rounded-full transition flex items-center gap-1">
+            <i class="fas fa-trophy"></i> Xếp Hạng
+          </a>
+          <a href="/admin/login" class="bg-white bg-opacity-25 px-5 py-2 rounded-full font-bold hover:bg-opacity-40 transition flex items-center gap-1">
+            <i class="fas fa-user-shield"></i> Quản Trị
+          </a>
+        </div>
+
+        <button id="mobile-menu-button" class="lg:hidden text-white">
+          <i class="fas fa-bars text-2xl"></i>
+        </button>
+      </div>
+
+      <div id="mobile-menu" class="lg:hidden hidden bg-gradient-to-b from-sky-medium to-pink-600 rounded-xl mt-2 shadow-lg overflow-hidden">
+        <a href="/#home" class="block px-6 py-3 text-sm hover:bg-white hover:bg-opacity-20 flex items-center gap-2"><i class="fas fa-home"></i> Trang Chủ</a>
+        <a href="/#about" class="block px-6 py-3 text-sm hover:bg-white hover:bg-opacity-20 flex items-center gap-2"><i class="fas fa-info-circle"></i> Giới Thiệu</a>
+        <a href="/#books" class="block px-6 py-3 text-sm hover:bg-white hover:bg-opacity-20 flex items-center gap-2"><i class="fas fa-book"></i> Kho Sách</a>
+        <a href="/challenges" class="block px-6 py-3 text-sm hover:bg-white hover:bg-opacity-20 flex items-center gap-2"><i class="fas fa-brain"></i> Thử Thách</a>
+        <a href="/leaderboard" class="block px-6 py-3 text-sm hover:bg-white hover:bg-opacity-20 flex items-center gap-2"><i class="fas fa-trophy"></i> Xếp Hạng</a>
+        <a href="/#ai-chat" class="block px-6 py-3 text-sm hover:bg-white hover:bg-opacity-20 flex items-center gap-2"><i class="fas fa-robot"></i> AI Thư Viện</a>
+        <a href="/admin/login" class="block px-6 py-3 text-sm hover:bg-white hover:bg-opacity-20 flex items-center gap-2"><i class="fas fa-user-shield"></i> Quản Trị</a>
+      </div>
+    </div>
+  </nav>
+
+  <script>
+    document.getElementById('mobile-menu-button').addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('mobile-menu').classList.toggle('hidden');
+    });
+    document.addEventListener('click', (e) => {
+      const menu = document.getElementById('mobile-menu');
+      const btn = document.getElementById('mobile-menu-button');
+      if (menu && !menu.contains(e.target) && !btn.contains(e.target)) menu.classList.add('hidden');
+    });
+  </script>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 py-8 chat-container">
+    <div class="bg-card-bg rounded-3xl shadow-soft p-6 sm:p-10 border-4 border-sky-light">
+
+      <!-- TITLE + BABY STICKER (ONLY ONE) -->
+      <div class="flex items-center justify-center gap-4 mb-8">
+        <img src="https://png.pngtree.com/png-vector/20250415/ourmid/pngtree-animation-of-a-baby-boy-reading-png-image_15995380.png"
+             alt="Baby đọc sách" class="baby-sticker">
+        <h1 class="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-sky-medium to-accent-pink bg-clip-text text-transparent">
+          AI Thư Viện Văn Hóa Đọc
+        </h1>
+      </div>
+
+      <!-- Chat Messages -->
+      <div id="chat-messages" class="flex flex-col gap-5">
+        <div class="ai-message chat-bubble p-6 max-w-[82%] self-start text-base leading-relaxed">
+          <strong class="text-xl text-sky-medium">Chào các em!</strong><br>
+          Mình là <span class="font-bold text-accent-pink">AI Thư Viện</span> đây!<br><br>
+          Hỏi mình về truyện tranh, sách hay, tài liệu học tập...<br>
+          Mình sẽ tìm giúp các em ngay!<br><br>
+
+          <strong class="text-accent-yellow">Hello friends!</strong><br>
+          Ask me about books, comics, or anything fun to read!
+        </div>
+      </div>
+
+      <!-- Input Form -->
+      <form id="chat-form" class="flex flex-col sm:flex-row gap-4 mt-8">
+        <input type="text" id="message" placeholder="Hỏi mình gì đó nè..."
+          class="flex-1 px-6 py-4 rounded-full border-3 border-sky-light focus:border-sky-medium focus:ring-4 focus:ring-sky-light outline-none text-lg shadow-inner transition">
+        <button type="submit"
+          class="bg-gradient-to-r from-sky-medium to-accent-pink hover:from-sky-hover hover:to-pink-600 text-white font-bold px-8 py-4 rounded-full flex items-center justify-center gap-2 shadow-lg transform hover:scale-105 transition">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+          </svg>
+          Gửi
+        </button>
+      </form>
+    </div>
+  </main>
+
+ <!-- FOOTER -->
+<footer class="bg-gray-900 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold mb-4">Thư Viện Văn Hóa Đọc</h3>
+                <p class="text-gray-400 text-sm">
+                    Nơi khám phá tri thức và nuôi dưỡng tâm hồn học sinh THPT Phan Chu Trinh
+                </p>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-4">Danh Mục</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="index.php#about" class="text-gray-400 hover:text-white transition-colors">Giới Thiệu</a></li>
+                    <li><a href="index.php#books" class="text-gray-400 hover:text-white transition-colors">Bước Chân Của Sách</a></li>
+                    <li><a href="index.php#ai-chat" class="text-gray-400 hover:text-white transition-colors">AI Thư Viện</a></li>
+                    <li><a href="index.php#contact" class="text-gray-400 hover:text-white transition-colors">Liên Hệ</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-4">Tính Năng</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="challenges.php" class="text-gray-400 hover:text-white transition-colors">Thử Thách Vui</a></li>
+                    <li><a href="leaderboard.php" class="text-gray-400 hover:text-white transition-colors">Bảng Xếp Hạng</a></li>
+                    <li><a href="read_book.php" class="text-gray-400 hover:text-white transition-colors">Đọc Sách Online</a></li>
+                    <li><a href="admin/login.php" class="text-gray-400 hover:text-white transition-colors">Quản Lý</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-4">Liên Hệ</h3>
+                <div class="space-y-2 text-sm text-gray-400">
+                    <p>Trường THPT Phan Chu Trinh</p>
+                    <p>Việt Nam</p>
+                    <p>contact@thptphantrinh.edu.vn</p>
+                    <p class="text-yellow-400">Phát triển bởi THPT Phan Chu Trinh</p>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+            <p class="text-gray-400 text-sm">
+                © 2025 Thư Viện Văn Hóa Đọc Tích Hợp AI - Phát triển bởi THPT Phan Chu Trinh. 
+            </p>
+        </div>
+    </div>
+</footer>
+
+  <!-- CHAT SCRIPT -->
+  <script>
+    const form = document.getElementById('chat-form');
+    const input = document.getElementById('message');
+    const chatMessages = document.getElementById('chat-messages');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const message = input.value.trim();
+      if (!message) return;
+
+      const userDiv = document.createElement('div');
+      userDiv.className = 'user-message chat-bubble p-6 self-end max-w-[82%] text-base';
+      userDiv.textContent = message;
+      chatMessages.appendChild(userDiv);
+      input.value = '';
+      scrollToBottom();
+
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'chat-bubble p-6 self-start flex gap-3 items-center';
+      typingDiv.innerHTML = `<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>`;
+      chatMessages.appendChild(typingDiv);
+      scrollToBottom();
+
+      try {
+        const res = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        });
+        const data = await res.json();
+        chatMessages.removeChild(typingDiv);
+
+        const aiDiv = document.createElement('div');
+        aiDiv.className = 'ai-message chat-bubble p-6 max-w-[82%] self-start text-base leading-relaxed';
+        aiDiv.innerHTML = data.response || 'Oops! Có lỗi rồi...';
+        chatMessages.appendChild(aiDiv);
+        scrollToBottom();
+
+        if (window.MathJax) {
+          MathJax.Hub.Queue(["Typeset", MathJax.Hub, aiDiv]);
+        }
+      } catch (err) {
+        chatMessages.removeChild(typingDiv);
+        const errDiv = document.createElement('div');
+        errDiv.className = 'chat-bubble p-6 self-start text-red-600 text-base';
+        errDiv.textContent = 'Mất kết nối, thử lại nhé!';
+        chatMessages.appendChild(errDiv);
+        scrollToBottom();
+      }
+    });
+
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') form.dispatchEvent(new Event('submit'));
+    });
+
+    function scrollToBottom() {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+  </script>
+</body>
+</html>

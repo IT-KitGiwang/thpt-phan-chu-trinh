@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản lý Thư viện Văn hóa Đọc - THPT Phan Chu Trinh</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #1e40af;
+      --primary-light: #3b82f6;
+      --danger: #dc2626;
+      --warning: #f59e0b;
+      --success: #10b981;
+      --gray: #6b7280;
+      --light: #f3f4f6;
+      --white: #ffffff;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #1f2937;
+    }
+
+    .container {
+      max-width: 1100px;
+      padding: 1.5rem;
+    }
+
+    .page-header {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0;
+    }
+
+    .page-subtitle {
+      font-size: 0.95rem;
+      color: var(--gray);
+      margin-top: 0.25rem;
+    }
+
+    .btn-logout {
+      background: var(--danger);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      background: #b91c1c;
+      transform: translateY(-1px);
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e5e7eb;
+    }
+
+    .card h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .upload-area {
+      border: 2px dashed #93c5fd;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      background: #eff6ff;
+      transition: all 0.3s;
+      margin-bottom: 1.5rem;
+    }
+
+    .upload-area:hover {
+      border-color: var(--primary);
+      background: #dbeafe;
+    }
+
+    .upload-area i {
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin-bottom: 0.75rem;
+    }
+
+    .btn-upload {
+      background: var(--warning);
+      color: white;
+      border: none;
+      padding: 0.65rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 500;
+    }
+
+    .btn-upload:hover {
+      background: #d97706;
+    }
+
+    .pdf-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: var(--light);
+      border-radius: 10px;
+      margin-bottom: 0.75rem;
+      transition: all 0.2s;
+    }
+
+    .pdf-item:hover {
+      background: #e5e7eb;
+      transform: translateX(4px);
+    }
+
+    .pdf-name {
+      font-weight: 500;
+      color: #1f2937;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 70%;
+    }
+
+    .btn-delete {
+      background: var(--danger);
+      color: white;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    .btn-delete:hover {
+      background: #b91c1c;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--gray);
+      font-style: italic;
+      padding: 2rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--white);
+      padding: 1.25rem;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e5e7eb;
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--gray);
+      margin-top: 0.25rem;
+    }
+
+    .table-responsive {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    table {
+      margin: 0;
+    }
+
+    th {
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    td {
+      vertical-align: top;
+      font-size: 0.9rem;
+    }
+
+    .history-cell {
+      max-height: 120px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 0.8rem;
+      background: #f9fafb;
+      padding: 0.5rem;
+      border-radius: 6px;
+    }
+
+    .history-cell::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .history-cell::-webkit-scrollbar-thumb {
+      background: #9ca3af;
+      border-radius: 3px;
+    }
+
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+      }
+      .page-title {
+        font-size: 1.5rem;
+      }
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Quản lý Thư viện Văn hóa Đọc</h1>
+        <p class="page-subtitle">Trường THPT Phan Chu Trinh</p>
+      </div>
+      <a href="{{ url_for('admin_logout') }}" class="btn btn-logout">
+        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+      </a>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Thống kê nhanh -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">{{ pdf_files|length }}</div>
+        <div class="stat-label">Tài liệu PDF</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ total_users }}</div>
+        <div class="stat-label">Người dùng (IP)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ rag_status }}</div>
+        <div class="stat-label">Trạng thái RAG</div>
+      </div>
+    </div>
+
+    <!-- Upload PDF -->
+    <div class="card">
+      <h2><i class="fas fa-cloud-upload-alt"></i> Tải lên tài liệu mới</h2>
+      <form method="POST" action="{{ url_for('admin_upload') }}" enctype="multipart/form-data">
+        <div class="upload-area">
+          <i class="fas fa-file-pdf"></i>
+          <p><strong>Chọn file PDF</strong> để thêm vào thư viện</p>
+          <input type="file" name="file" accept=".pdf" required class="form-control mt-3" />
+          <button type="submit" class="btn btn-upload mt-3">
+            <i class="fas fa-upload"></i> Tải lên
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Danh sách PDF -->
+    <div class="card">
+      <h2><i class="fas fa-file-pdf"></i> Danh sách tài liệu ({{ pdf_files|length }})</h2>
+      {% if pdf_files %}
+        {% for pdf in pdf_files %}
+          <div class="pdf-item">
+            <span class="pdf-name" title="{{ pdf }}">
+              <i class="fas fa-file-pdf text-danger"></i> {{ pdf }}
+            </span>
+            <form method="POST" action="{{ url_for('admin_delete', filename=pdf) }}" style="display:inline;">
+              <button type="submit" class="btn btn-delete" onclick="return confirm('Xóa tài liệu: {{ pdf }}?')">
+                <i class="fas fa-trash"></i>
+              </button>
+            </form>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="empty-state">Chưa có tài liệu nào. Hãy tải lên file PDF đầu tiên!</p>
+      {% endif %}
+    </div>
+
+    <!-- Lịch sử chat theo IP -->
+    <div class="card">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="fas fa-comments"></i> Lịch sử trò chuyện ({{ total_users }} IP)</h2>
+        <a href="{{ url_for('export_csv') }}" class="btn btn-success">
+          <i class="fas fa-download"></i> Xuất CSV
+        </a>
+      </div>
+
+      {% if histories %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>IP</th>
+                <th>Số tin</th>
+                <th>Mới nhất</th>
+                <th>Lịch sử (10 tin cuối)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for h in histories %}
+                <tr>
+                  <td><code>{{ h.ip }}</code></td>
+                  <td><strong>{{ h.messages }}</strong></td>
+                  <td><small>{{ h.latest[:60] }}{% if h.latest|length > 60 %}...{% endif %}</small></td>
+                  <td>
+                    <div class="history-cell">
+                      {{ h.history|replace('\n', '<br>')|safe }}
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="empty-state">Chưa có người dùng nào trò chuyện.</p>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
