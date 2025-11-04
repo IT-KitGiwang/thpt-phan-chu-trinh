@@ -12,7 +12,7 @@ from io import BytesIO
 from werkzeug.utils import secure_filename
 import pandas as pd
 from dotenv import load_dotenv
-import shutil
+
 # ================== LOAD ENV ==================
 load_dotenv()
 
@@ -89,32 +89,20 @@ def embed_with_retry(texts, model, retries=5):
     return np.array(embeddings)
 
 def init_rag():
-    """Khởi tạo hoặc tải lại RAG + XÓA TOÀN BỘ session cũ"""
+    """Khởi tạo hoặc tải lại RAG"""
     global RAG_DATA
-
-    # XÓA SESSION CŨ
-    session_dir = 'flask_session'
-    if os.path.exists(session_dir):
-        try:
-            shutil.rmtree(session_dir)
-            print(f"Đã xóa toàn bộ session cũ tại: {session_dir}")
-        except Exception as e:
-            print(f"Lỗi khi xóa thư mục session: {e}")
-    os.makedirs(session_dir, exist_ok=True)
-
-    # Tiếp tục như cũ...
-    print("Đang tải lại RAG...")
+    print("🔄 Đang tải lại RAG...")
     RAG_DATA = {"chunks": [], "embeddings": np.array([]), "is_ready": False}
     chunks = create_chunks()
     if not chunks:
-        print("Không có PDF hợp lệ trong thư mục static/.")
+        print("⚠️ Không có PDF hợp lệ trong thư mục static/.")
         return
     try:
         embeddings = embed_with_retry(chunks, EMBEDDING_MODEL)
         RAG_DATA.update({"chunks": chunks, "embeddings": embeddings, "is_ready": True})
-        print(f"RAG tải xong: {len(chunks)} đoạn từ {len(os.listdir('./static'))} file PDF.")
+        print(f"✅ RAG tải xong: {len(chunks)} đoạn từ {len(os.listdir('./static'))} file PDF.")
     except Exception as e:
-        print(f"Lỗi RAG: {e}")
+        print(f"❌ Lỗi RAG: {e}")
         RAG_DATA["is_ready"] = False
 
 # Tải RAG khi khởi động server
@@ -177,22 +165,29 @@ def chat():
     recent = "\n".join(history[-10:])
 
     prompt = f"""
-Bạn là AI Thư viện Văn hóa Đọc - THPT Phan Chu Trinh.
-Hỗ trợ học sinh tìm tài liệu từ RAG hoặc gợi ý sách/truyện tranh phù hợp.
+    Tài liệu RAG:
+    {context}
+    Lịch sử nhắn tin để theo dõi và trả lời:
+    {recent}
 
-Tài liệu RAG:
-{context}
-
-Lịch sử:
-{recent}
+Bạn là AI Thư viện Văn hóa Đọc được thành lập bởi nhóm học sinh và giáo viên THPT Phan Chu Trinh
+Nhiệm vụ của bạn là quản lý thư viện và gợi ý học sinh các cuốn sách, truyện tranh,... hay và bổ ích.
+Đồng thời bạn cũng có thể đồng hành cùng học sinh như là bạn đọc, tư vấn, trò chuyện thân thiện, tạo cho học sinh cảm giác gần gũi và hướng dẫn tìm động lực đọc sách nếu học sinh yêu cầu.
+Yêu cầu trả lời:
+- Gợi ý phù hợp, ưu tiên các cuốn sách học tập uy tín có kiểm duyệt nội dung hoặc truyện tranh nổi tiếng, thú vị, tạo hứng thú cho học sinh thư giãn và học tập tốt hơn.
+- Tên của sách gợi ý và các từ khóa cần highlight luôn bọc vô thẻ <span style="line-height:1.6; background: orange; color:white; font-weight:bold; padding:2px 4px; border-radius:4px;">(tên)</span>
+- Trích dẫn tên tác giả chính thức của sách nếu có, nếu không chắc chắn thì không trả lời.
+- Phản hồi song ngữ (Tiếng Việt trước, sau đó: trả lời tiếng anh) English Version: bọc vô thẻ <span style="line-height:1.6; background: darkblue; color:white; font-weight:bold; padding:2px 4px; border-radius:4px;">English Version</span> ...)
+- Dùng <strong>, <em>, • cho danh sách
+- Thân thiện, khuyến khích đọc sách
+- Hãy ưu tiên phản hồi đúng trọng tâm và ngắn gọn, không quá 500 từ.
+- Luôn kèm theo " Trên đây chỉ là thông tin tham khảo! Tên sách có thể chưa chính xác nếu không có trong tài nguyên website!" in đậm.
+Nếu học sinh hỏi các câu hỏi yêu cầu gợi ý các cuốn sách trong tài nguyên của website (các tài nguyên hiện có theo file RAG), hãy gợi ý cho học sinh các cuốn sách phù hợp với nhu cầu của học sinh.
+Nếu học sinh hỏi gợi ý mà không yêu cầu cụ thể trong tài nguyên của website, hãy dựa vào kiến thức Internet bạn có để trả lời:
 
 Câu hỏi: {msg}
 
-Trả lời:
-- Song ngữ (Tiếng Việt trước, sau đó: English Version: ...)
-- Dùng <strong>, <em>, • cho danh sách
-- Không dùng LaTeX
-- Thân thiện, khuyến khích đọc sách
+
 """
 
     try:
